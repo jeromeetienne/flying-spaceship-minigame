@@ -174,15 +174,13 @@ require([ '../bower_components/threex.spaceships/package.require.js'
 	var rightDetonation	= null;
 
 	var spaceship	= null;
-	// THREEx.SpaceShips.loadSpaceFighter03(function(object3d){
-	THREEx.SpaceShips.loadSpaceFighter02(function(object3d){
+	THREEx.SpaceShips.loadSpaceFighter03(function(object3d){
 		scene.add(object3d)
 		spaceship	= object3d
-		// spaceship.rotation.y	= Math.PI/2
+		spaceship.rotation.y	= Math.PI/2
 		spaceship.position.x    = -1	
 
 		emitter.emitThrottle(spaceship.position, 120)
-window.spaceship	= spaceship
 
 		leftDetonation	= new THREEx.SpaceShips.Detonation()
 		leftDetonation.position.x= + 0.5*10
@@ -318,11 +316,14 @@ function blueTrailEmitter(container){
 		acceleration.set(0,0,0)
 		if( keyboard.pressed('down') ){
 			acceleration.y	= - speed * delta;
-		}else if( keyboard.pressed('up') ){
+		}
+		if( keyboard.pressed('up') ){
 			acceleration.y 	= + speed * delta;
-		}else if( keyboard.pressed('left') ){
+		}
+		if( keyboard.pressed('left') ){
 			acceleration.x 	= - speed * delta;
-		}else if( keyboard.pressed('right') ){
+		}
+		if( keyboard.pressed('right') ){
 			acceleration.x 	= + speed * delta;
 		}
 
@@ -330,7 +331,7 @@ function blueTrailEmitter(container){
 		spaceship.position.add(velocity)
 		velocity.multiplyScalar(0.95)
 
-		// spaceship.rotation.z	= velocity.y * Math.PI * 10
+		spaceship.rotation.z	= velocity.y * Math.PI * 10
 	})
 
 	//////////////////////////////////////////////////////////////////////////////////
@@ -427,6 +428,7 @@ function blueTrailEmitter(container){
 		function destroyShoot(){
 			scene.remove(object3d)
 			var index	= onRenderFcts.indexOf(update)
+			console.assert(index !== -1)
 			onRenderFcts.splice(index, 1)
 		}
 
@@ -476,7 +478,7 @@ function blueTrailEmitter(container){
 		var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
 		lastTimeMsec	= nowMsec
 		// call each update function
-		onRenderFcts.forEach(function(onRenderFct){
+		onRenderFcts.slice().forEach(function(onRenderFct){
 			onRenderFct(deltaMsec/1000, nowMsec/1000)
 		})
 	})

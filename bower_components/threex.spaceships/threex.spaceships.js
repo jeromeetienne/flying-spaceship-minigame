@@ -116,7 +116,6 @@ THREEx.SpaceShips.Shoot	= function(){
 	})
 
 	var container	= new THREE.Object3D
-	// container.rotation.y	= Math.PI/2
 	container.scale.multiplyScalar(1/2)
 	var nPlanes	= 4;
 	for(var i = 0; i < nPlanes; i++){
