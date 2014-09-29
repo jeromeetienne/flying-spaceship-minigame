@@ -9,8 +9,7 @@ THREEx.SpaceShips.loadSpaceFighter01	= function(onLoad){
 	var baseUrl	= THREEx.SpaceShips.baseUrl 
 	var objUrl	= baseUrl + 'models/SpaceFighter01/SpaceFighter01.obj';
 	var mtlUrl	= baseUrl + 'models/SpaceFighter01/SpaceFighter01.mtl';
-	loader.load(objUrl, mtlUrl, function( event ){
-		var object3d	= event.content
+	loader.load(objUrl, mtlUrl, function( object3d ){
 		object3d.scale.multiplyScalar(1/300)
 		// change emissive color of all object3d material - they are too dark
 		object3d.traverse(function(object3d){
@@ -61,8 +60,10 @@ THREEx.SpaceShips.loadSpaceFighter03	= function(onLoad){
 
 THREEx.SpaceShips.loadShuttle01	= function(onLoad){
 	var loader	= new THREE.OBJMTLLoader();
-	loader.addEventListener('load', function( event ){
-		var object3d	= event.content
+	var baseUrl	= THREEx.SpaceShips.baseUrl 
+	var objUrl	= baseUrl + 'models/Shuttle01/Shuttle01.obj';
+	var mtlUrl	= baseUrl + 'models/Shuttle01/Shuttle01.mtl';
+	loader.load(objUrl, mtlUrl, function( object3d ){
 		object3d.scale.multiplyScalar(1/400)
 		// change emissive color of all object3d material - they are too dark
 		object3d.traverse(function(object3d){
@@ -72,17 +73,15 @@ THREEx.SpaceShips.loadShuttle01	= function(onLoad){
 		})
 		// notify the callback
 		onLoad	&& onLoad(object3d)
-	});
-	var baseUrl	= THREEx.SpaceShips.baseUrl 
-	var objUrl	= baseUrl + 'models/Shuttle01/Shuttle01.obj';
-	var mtlUrl	= baseUrl + 'models/Shuttle01/Shuttle01.mtl';
-	loader.load(objUrl, mtlUrl);		
+	});		
 }
 
 THREEx.SpaceShips.loadShuttle02	= function(onLoad){
 	var loader	= new THREE.OBJMTLLoader();
-	loader.addEventListener('load', function( event ){
-		var object3d	= event.content
+	var baseUrl	= THREEx.SpaceShips.baseUrl 
+	var objUrl	= baseUrl + 'models/Shuttle02/Shuttle02.obj';
+	var mtlUrl	= baseUrl + 'models/Shuttle02/Shuttle02.mtl';
+	loader.load(objUrl, mtlUrl, function( object3d ){
 		object3d.scale.multiplyScalar(1/400)
 		// change emissive color of all object3d material - they are too dark
 		object3d.traverse(function(object3d){
@@ -92,11 +91,7 @@ THREEx.SpaceShips.loadShuttle02	= function(onLoad){
 		})
 		// notify the callback
 		onLoad	&& onLoad(object3d)
-	});
-	var baseUrl	= THREEx.SpaceShips.baseUrl 
-	var objUrl	= baseUrl + 'models/Shuttle02/Shuttle02.obj';
-	var mtlUrl	= baseUrl + 'models/Shuttle02/Shuttle02.mtl';
-	loader.load(objUrl, mtlUrl);		
+	});		
 }
 
 
