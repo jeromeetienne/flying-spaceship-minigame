@@ -12,6 +12,10 @@ require([ '../bower_components/threex.spaceships/package.require.js'
 	, '../bower_components/threex.planets/package.require.js'
 	, '../bower_components/webaudiox/build/webaudiox.js'
 	], function(){
+
+	//////////////////////////////////////////////////////////////////////////////////
+	//		Comment								//
+	//////////////////////////////////////////////////////////////////////////////////
 	// detect WebGL
 	if( !Detector.webgl ){
 		Detector.addGetWebGLMessage();
@@ -32,7 +36,7 @@ require([ '../bower_components/threex.spaceships/package.require.js'
 	var onRenderFcts= [];
 
 	// handle window resize events
-	var winResize	= new THREEx.WindowResize(renderer, camera)
+	// var winResize	= new THREEx.WindowResize(renderer, camera)
 
 	//////////////////////////////////////////////////////////////////////////////////
 	//		default 3 points lightning					//
@@ -46,7 +50,8 @@ require([ '../bower_components/threex.spaceships/package.require.js'
 	var backLight	= new THREE.DirectionalLight('white', 0.75)
 	backLight.position.set(-0.5, -0.5, -2)
 	scene.add( backLight )		
-	
+
+
 	//////////////////////////////////////////////////////////////////////////////////
 	//		add star sphere							//
 	//////////////////////////////////////////////////////////////////////////////////
@@ -90,7 +95,8 @@ require([ '../bower_components/threex.spaceships/package.require.js'
 		var distance    = moonMesh.position.distanceTo(spaceship.position)
 		if( distance < 0.3 ){
 			resetMoon()
-			playExplosionSound()
+			// playExplosionSound()
+			playDeathSound()
 		}
 	})
 	
@@ -118,19 +124,80 @@ require([ '../bower_components/threex.spaceships/package.require.js'
 		return source
 	}
 
+	//////////////////////////////////////////////////////////////////////////////////
+	//		Comment								//
+	//////////////////////////////////////////////////////////////////////////////////
+	var deathBuffer;
+	// load the sound
+	var deathUrl    = 'sounds/204450__ludist__soul-death.mp3'
+	WebAudiox.loadBuffer(context, deathUrl, function(buffer){
+		deathBuffer = buffer
+	})
+
+	// setup a play function
+	function playDeathSound(){
+		if( !soundBuffer )  return
+		var source  = context.createBufferSource()
+		source.buffer   = deathBuffer
+		source.connect(lineOut.destination)
+		source.start(0)
+		return source
+	}	
+
+
+	//////////////////////////////////////////////////////////////////////////////////
+	//		Comment								//
+	//////////////////////////////////////////////////////////////////////////////////
+	var shootBuffer;
+	// load the sound
+	var shootUrl    = 'sounds/196914__dpoggioli__laser-gun.wav'
+	WebAudiox.loadBuffer(context, shootUrl, function(buffer){
+		shootBuffer = buffer
+	})
+
+	// setup a play function
+	function playShootSound(){
+		if( !soundBuffer )  return
+		var source  = context.createBufferSource()
+		source.buffer   = shootBuffer
+		source.connect(lineOut.destination)
+		source.start(0)
+		return source
+	}	
+
 	
 	//////////////////////////////////////////////////////////////////////////////////
 	//		add an object and make it move					//
 	//////////////////////////////////////////////////////////////////////////////////
 
+	var leftDetonation	= null;
+	var rightDetonation	= null;
+
 	var spaceship	= null;
-	THREEx.SpaceShips.loadSpaceFighter03(function(object3d){
+	// THREEx.SpaceShips.loadSpaceFighter03(function(object3d){
+	THREEx.SpaceShips.loadSpaceFighter02(function(object3d){
 		scene.add(object3d)
 		spaceship	= object3d
-		spaceship.rotateY(Math.PI/2)
+		// spaceship.rotation.y	= Math.PI/2
 		spaceship.position.x    = -1	
 
 		emitter.emitThrottle(spaceship.position, 120)
+window.spaceship	= spaceship
+
+		leftDetonation	= new THREEx.SpaceShips.Detonation()
+		leftDetonation.position.x= + 0.5*10
+		leftDetonation.position.z=   0.1*10
+		leftDetonation.scale.set(10,10,10)
+		spaceship.add(leftDetonation)
+		leftDetonation.material.opacity	= 0
+
+
+		rightDetonation	= new THREEx.SpaceShips.Detonation()
+		rightDetonation.position.x= - 0.5*10
+		rightDetonation.position.z=   0.1*10
+		rightDetonation.scale.set(10,10,10)
+		spaceship.add(rightDetonation)
+		rightDetonation.material.opacity	= 0
 	})
 
 
@@ -263,24 +330,119 @@ function blueTrailEmitter(container){
 		spaceship.position.add(velocity)
 		velocity.multiplyScalar(0.95)
 
-		spaceship.rotation.z	= velocity.y * Math.PI * 10
+		// spaceship.rotation.z	= velocity.y * Math.PI * 10
 	})
 
-	// // add function in rendering loop
-	// onRenderFcts.push(function(delta, now){
-	// 	// only if the spaceship is loaded
-	// 	if( spaceship === null )  return;
+	//////////////////////////////////////////////////////////////////////////////////
+	//		Comment								//
+	//////////////////////////////////////////////////////////////////////////////////
 
-	// 	// set the speed
-	// 	var speed = 1;
-	// 	// only if spaceships is loaded
-	// 	if( keyboard.pressed('down') ){
-	// 	    spaceship.position.y  -= speed * delta;
-	// 	}else if( keyboard.pressed('up') ){
-	// 	    spaceship.position.y  += speed * delta;
-	// 	}
-	// })
-	
+	var lastLeftShoot	= null
+	onRenderFcts.push(function(delta, now){
+		if( lastLeftShoot === null )	return
+		var object3d	= leftDetonation
+		var opacity	= 0
+		var present	= Date.now()
+
+		var maxAge	= 0.7*1000
+		var age		= present - lastLeftShoot
+		var percentAge	= age/maxAge
+		if( age < maxAge ){
+			if( percentAge < 0.05 ){
+				opacity	= percentAge/0.05;
+			}else if( percentAge > 0.4 ){
+				opacity	= 1-(percentAge-0.6)/0.4;
+			}else{
+				opacity	= 1
+			}
+		}else if( age > maxAge ){
+			opacity	= 0;
+		}
+
+		leftDetonation.material.opacity	= opacity;
+	})
+
+	var lastRightShoot	= null
+	onRenderFcts.push(function(delta, now){
+		if( lastRightShoot === null )	return
+		var opacity	= 0
+		var present	= Date.now()
+
+		var maxAge	= 0.7*1000
+		var age		= present - lastRightShoot
+		var percentAge	= age/maxAge
+		if( age < maxAge ){
+			if( percentAge < 0.05 ){
+				opacity	= percentAge/0.05;
+			}else if( percentAge > 0.4 ){
+				opacity	= 1-(percentAge-0.6)/0.4;
+			}else{
+				opacity	= 1
+			}
+		}else if( age > maxAge ){
+			opacity	= 0;
+		}
+
+		rightDetonation.material.opacity	= opacity;
+	})
+
+
+	var shootCounter	= 0
+	var shootTemplate	= THREEx.SpaceShips.Shoot()
+	function createShoot(){
+		if( spaceship === null )	return
+
+		var object3d	= shootTemplate.clone()
+		scene.add(object3d)
+
+		object3d.position.copy( spaceship.position )
+		object3d.position.x	+= 0.2          
+
+		playShootSound()
+
+		shootCounter++
+		if( shootCounter % 2 ){
+			object3d.position.z	-= 0.5
+			lastLeftShoot	= Date.now()
+		}else{
+			object3d.position.z	+= 0.5
+			lastRightShoot	= Date.now()
+		}
+
+		function update(delta){			
+			object3d.position.x	+= 3*delta
+			if( object3d.position.x > 4 ){
+				destroyShoot()
+			}
+
+			// compute distance between shoot and the moon
+			var distance    = moonMesh.position.distanceTo(object3d.position)
+			if( distance < 0.7 ){
+				resetMoon()
+				playExplosionSound()
+				destroyShoot()
+			}
+		}
+
+		function destroyShoot(){
+			scene.remove(object3d)
+			var index	= onRenderFcts.indexOf(update)
+			onRenderFcts.splice(index, 1)
+		}
+
+
+		onRenderFcts.push(update)
+	}
+
+	var lastShootDate	= null
+	onRenderFcts.push(function(){
+		if( keyboard.pressed('space') && Date.now() - lastShootDate > 0.5*1000){
+			createShoot()
+			lastShootDate	= Date.now();
+		}
+	})
+
+
 	//////////////////////////////////////////////////////////////////////////////////
 	//		Camera Controls							//
 	//////////////////////////////////////////////////////////////////////////////////
@@ -318,5 +480,6 @@ function blueTrailEmitter(container){
 			onRenderFct(deltaMsec/1000, nowMsec/1000)
 		})
 	})
+
 })
 </script></body>

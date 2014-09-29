@@ -116,14 +116,14 @@ THREEx.SpaceShips.Shoot	= function(){
 	})
 
 	var container	= new THREE.Object3D
-	container.rotateY(Math.PI/2)
+	// container.rotation.y	= Math.PI/2
 	container.scale.multiplyScalar(1/2)
 	var nPlanes	= 4;
 	for(var i = 0; i < nPlanes; i++){
 		var geometry	= new THREE.PlaneGeometry(1,1)
 		var mesh	= new THREE.Mesh(geometry, material)
 		mesh.material	= material
-		mesh.rotateX(i*Math.PI/nPlanes)
+		mesh.rotation.x	= i*Math.PI/nPlanes
 		container.add(mesh)
 	}
 	
